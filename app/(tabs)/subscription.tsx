@@ -1,11 +1,14 @@
+import { styled } from "nativewind";
 import React from "react";
-import { Text, View } from "react-native";
+import { Text } from "react-native";
+import { SafeAreaView as RNSSafeAreaView } from "react-native-safe-area-context";
+const SafeAreaView = styled(RNSSafeAreaView)
 
 const subscription = () => {
   return (
-    <View>
+    <SafeAreaView className="flex-1 bg-background p-5" style={{ paddingBottom: 142 }}>
       <Text>subscription</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 
