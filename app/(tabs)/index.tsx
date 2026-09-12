@@ -2,7 +2,6 @@ import "@/global.css";
 import { Link } from "expo-router";
 import { styled } from "nativewind";
 import { Pressable, Text } from "react-native";
-
 import { SafeAreaView as RNSSafeAreaView } from "react-native-safe-area-context";
 const SafeAreaView = styled(RNSSafeAreaView)
 
@@ -35,6 +34,7 @@ export default function App() {
         <Pressable className="rounded bg-black p-4">
           <Text className="text-white">Spotify Subscription</Text>
         </Pressable>
+
       </Link>
 
       <Link
