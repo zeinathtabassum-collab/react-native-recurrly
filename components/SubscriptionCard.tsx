@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatSubscriptionDateTime, formatStatusLabel } from '@/lib/utils';
 import React from 'react';
 import {
   Image,
@@ -18,9 +18,41 @@ interface SubscriptionCardProps {
   color?: string;
   category?: string;
   details?: string;
+  // Expanded detail fields
+  paymentMethod?: string;
+  categoryPlan?: string;
+  startDate?: string;
+  renewalDate?: string;
+  status?: string;
   expanded: boolean;
   onPress: () => void;
 }
+
+// Renders a label/value row only when value is present, otherwise shows fallback.
+// Pass `hideWhenEmpty` to suppress the row entirely instead of showing a fallback.
+const DetailRow = ({
+  label,
+  value,
+  hideWhenEmpty = false,
+  fallback = 'Not provided',
+}: {
+  label: string;
+  value?: string;
+  hideWhenEmpty?: boolean;
+  fallback?: string;
+}) => {
+  const display = value?.trim() ?? '';
+  if (!display && hideWhenEmpty) return null;
+
+  return (
+    <View className="sub-row" style={styles.subRow}>
+      <Text style={styles.subLabel}>{label}</Text>
+      <Text style={[styles.subValue, !display && styles.subValueFallback]}>
+        {display || fallback}
+      </Text>
+    </View>
+  );
+};
 
 const SubscriptionCard = ({
   name,
@@ -31,6 +63,11 @@ const SubscriptionCard = ({
   color = '#86e8d4',
   category,
   details,
+  paymentMethod,
+  categoryPlan,
+  startDate,
+  renewalDate,
+  status,
   expanded,
   onPress,
 }: SubscriptionCardProps) => {
@@ -70,11 +107,37 @@ const SubscriptionCard = ({
       </View>
 
       {/* Expanded details */}
-      {expanded && details ? (
+      {expanded && (
         <View style={styles.detailsRow}>
-          <Text style={styles.details}>{details}</Text>
+          {/* Free-text details summary, hidden when absent */}
+          {details?.trim() ? (
+            <Text style={styles.details}>{details}</Text>
+          ) : null}
+
+          {/* Structured detail rows */}
+          <DetailRow
+            label="Payment Method"
+            value={paymentMethod}
+          />
+          <DetailRow
+            label="Plan"
+            value={categoryPlan?.trim() || category?.trim()}
+          />
+          <DetailRow
+            label="Start Date"
+            value={formatSubscriptionDateTime(startDate) !== 'Not provided' ? formatSubscriptionDateTime(startDate) : undefined}
+          />
+          <DetailRow
+            label="Renewal Date"
+            value={formatSubscriptionDateTime(renewalDate) !== 'Not provided' ? formatSubscriptionDateTime(renewalDate) : undefined}
+          />
+          <DetailRow
+            label="Status"
+            value={formatStatusLabel(status) !== 'Unknown' ? formatStatusLabel(status) : undefined}
+            fallback="Unknown"
+          />
         </View>
-      ) : null}
+      )}
     </Pressable>
   );
 };
@@ -140,11 +203,36 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: 'rgba(8,17,38,0.12)',
+    gap: 6,
   },
   details: {
     fontSize: 14,
     fontWeight: '400',
     color: 'rgba(8,17,38,0.75)',
     lineHeight: 20,
+    marginBottom: 6,
+  },
+  subRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 2,
+  },
+  subLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: 'rgba(8,17,38,0.55)',
+  },
+  subValue: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#081126',
+    flexShrink: 1,
+    textAlign: 'right',
+    marginLeft: 8,
+  },
+  subValueFallback: {
+    color: 'rgba(8,17,38,0.35)',
+    fontStyle: 'italic',
   },
 });
