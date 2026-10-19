@@ -1,8 +1,17 @@
 @import "tailwindcss";
+@import "nativewind/theme";
 
 @theme {
-  --color-background: #ffffff;
+  /* Colors */
+  --color-background: #fff9e3;
   --color-primary: #2563eb;
   --color-success: #16a34a;
-}
 
+  /* Fonts */
+  --font-sans: sans-Regular;
+  --font-sans-medium: sans-Medium;
+  --font-sans-semibold: sans-SemiBold;
+  --font-sans-bold: sans-Bold;
+  --font-sans-extrabold: sans-ExtraBold;
+  --font-sans-light: sans-Light;
+}
