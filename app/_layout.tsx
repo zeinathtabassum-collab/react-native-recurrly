@@ -1,10 +1,47 @@
 import "@/global.css";
+import { ClerkProvider, ClerkLoaded, useAuth } from "@clerk/expo";
+import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
+import { Redirect, SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { colors } from "@/constants/theme";
 
 SplashScreen.preventAutoHideAsync();
 
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+
+if (!publishableKey) {
+  throw new Error(
+    "Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY — check your .env file"
+  );
+}
+
+// ─── Auth Gate ────────────────────────────────────────────────────────────────
+// Redirects users based on auth state without showing a flash of wrong content.
+function InitialRedirect() {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return (
+      <View
+        style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.Background }}
+      >
+        <ActivityIndicator size="large" color={colors.accent} />
+      </View>
+    );
+  }
+
+  // If signed in, always land on the tabs dashboard
+  if (isSignedIn) {
+    return <Redirect href="/(tabs)" />;
+  }
+
+  // Otherwise land on onboarding
+  return <Redirect href="/Onboarding" />;
+}
+
+// ─── Root Layout ──────────────────────────────────────────────────────────────
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     "sans-Regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
@@ -21,14 +58,22 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="Onboarding" />
-    </Stack>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <ClerkLoaded>
+        <Stack screenOptions={{ headerShown: false }}>
+          {/* Auth stack */}
+          <Stack.Screen name="(auth)" options={{ animation: "none" }} />
+          {/* Main app tabs */}
+          <Stack.Screen name="(tabs)" options={{ animation: "none" }} />
+          {/* Onboarding / landing */}
+          <Stack.Screen name="Onboarding" options={{ animation: "none" }} />
+          {/* Index — acts as redirect hub */}
+          <Stack.Screen name="index" options={{ animation: "none" }} />
+        </Stack>
+      </ClerkLoaded>
+    </ClerkProvider>
   );
 }
