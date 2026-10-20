@@ -20,6 +20,12 @@ interface SwipeableSubscriptionCardProps {
   color?: string;
   category?: string;
   details?: string;
+  // Expanded detail fields
+  paymentMethod?: string;
+  categoryPlan?: string;
+  startDate?: string;
+  renewalDate?: string;
+  status?: string;
   expanded: boolean;
   onPress: () => void;
   onDelete?: (name: string) => void;
